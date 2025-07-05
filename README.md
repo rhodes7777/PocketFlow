@@ -1,3 +1,156 @@
+# Search-Answer System
+
+A 3-node AI system built with PocketFlow that intelligently decides whether to search for information or answer questions directly.
+
+## System Overview
+
+The system consists of three main nodes:
+
+1. **DecideNode**: Analyzes the user's question and decides whether to search for more information or answer directly
+2. **SearchNode**: Performs web searches using DuckDuckGo when more information is needed
+3. **AnswerNode**: Provides the final answer based on the question and any search results
+
+## Flow Diagram
+
+```mermaid
+flowchart TD
+    A[DecideNode] -->|search| B[SearchNode]
+    A -->|answer| C[AnswerNode]
+    B -->|decide| A
+    C -->|complete| D[End]
+```
+
+## Setup
+
+### 1. Create Virtual Environment
+
+```bash
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+### 2. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Set Environment Variables
+
+You need to set your OpenAI API key:
+
+```bash
+export OPENAI_API_KEY="your-openai-api-key-here"
+```
+
+### 4. Run the System
+
+#### Interactive Mode
+```bash
+source venv/bin/activate  # Ensure virtual environment is activated
+python main.py
+```
+
+#### Command Line Mode
+```bash
+source venv/bin/activate  # Ensure virtual environment is activated
+python main.py "What is the weather like in New York today?"
+```
+
+## Example Usage
+
+### Example 1: Current Information (Will Search)
+```bash
+python main.py "Who won the Nobel Prize in Physics 2024?"
+```
+
+The system will:
+1. Decide to search for current information
+2. Search for Nobel Prize 2024 information
+3. Provide an answer based on search results
+
+### Example 2: General Knowledge (May Answer Directly)
+```bash
+python main.py "What is the capital of France?"
+```
+
+The system may:
+1. Decide it has enough knowledge to answer directly
+2. Provide the answer without searching
+
+## System Architecture
+
+### Utility Functions
+
+- **`utils/call_llm.py`**: OpenAI GPT API wrapper
+- **`utils/search_web.py`**: DuckDuckGo search functionality
+
+### Nodes
+
+- **`DecideNode`**: Uses LLM to decide whether to search or answer
+- **`SearchNode`**: Performs web searches and stores results
+- **`AnswerNode`**: Generates final answers using LLM
+
+### Flow Control
+
+The system uses action-based transitions:
+- `"search"`: DecideNode → SearchNode
+- `"answer"`: DecideNode → AnswerNode  
+- `"decide"`: SearchNode → DecideNode (for re-evaluation)
+
+## Key Features
+
+- **Intelligent Decision Making**: The system analyzes questions to determine if current information is needed
+- **Search Loop**: Can perform multiple searches if initial results are insufficient
+- **Context Preservation**: Maintains search history for better decision making
+- **Error Handling**: Includes retries and fallback mechanisms
+- **Structured Output**: Uses YAML for reliable LLM response parsing
+
+## Customization
+
+You can modify the behavior by:
+
+1. **Adjusting Node Parameters**: Change `max_retries` and `wait` times in `flow.py`
+2. **Modifying Search Results**: Change `max_results` in `utils/search_web.py`
+3. **Updating Prompts**: Modify the decision logic in `DecideNode.exec()`
+4. **Changing Models**: Update the model in `utils/call_llm.py`
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Missing API Key**: Ensure `OPENAI_API_KEY` is set
+2. **Rate Limits**: The system includes retry logic with waits
+3. **Network Issues**: DuckDuckGo search has error handling
+4. **Parsing Errors**: YAML parsing includes fallback mechanisms
+
+### Debug Mode
+
+To see detailed flow execution, you can add logging or print statements to the nodes.
+
+## Project Structure
+
+```
+.
+├── utils/
+│   ├── __init__.py
+│   ├── call_llm.py          # OpenAI API wrapper
+│   └── search_web.py        # DuckDuckGo search
+├── nodes.py                 # Node definitions
+├── flow.py                  # Flow creation
+├── main.py                  # Main entry point
+├── requirements.txt         # Dependencies
+└── README.md               # This file
+```
+
+## Contributing
+
+This system follows the PocketFlow framework guidelines for agentic coding. When making changes:
+
+1. Keep utility functions simple and testable
+2. Maintain clear separation between data (shared store) and compute (nodes)
+3. Use structured outputs for reliable LLM interactions
+4. Include error handling and retries for robust operation
 
 <div align="center">
   <img src="https://github.com/The-Pocket/.github/raw/main/assets/title.png" width="600"/>
